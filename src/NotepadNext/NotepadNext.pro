@@ -67,6 +67,7 @@ SOURCES += \
     ComboBoxDelegate.cpp \
     Converter.cpp \
     DebugManager.cpp \
+    DefaultDirectoryManager.cpp \
     DockedEditor.cpp \
     EditorHexViewerTableModel.cpp \
     EditorManager.cpp \
@@ -142,10 +143,12 @@ SOURCES += \
 HEADERS += \
     ActionUtils.h \
     ApplicationSettings.h \
+    ByteArrayUtils.h \
     ColorPickerDelegate.h \
     ComboBoxDelegate.h \
     Converter.h \
     DebugManager.h \
+    DefaultDirectoryManager.h \
     DockedEditor.h \
     DockedEditorTitleBar.h \
     EditorHexViewerTableModel.h \

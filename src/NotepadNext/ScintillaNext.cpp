@@ -18,8 +18,10 @@
 
 
 #include "ScintillaNext.h"
+#include "Finder.h"
 #include "ScintillaCommenter.h"
 
+#include "ByteArrayUtils.h"
 #include "uchardet.h"
 #include <cinttypes>
 
@@ -135,7 +137,7 @@ void ScintillaNext::goToRange(const Sci_CharacterRange &range)
         ensureVisible(lineFromPosition(range.cpMin));
         ensureVisible(lineFromPosition(range.cpMax));
 
-        setSelection(range.cpMin, range.cpMax);
+        setSelection(range.cpMax, range.cpMin);
         scrollRange(range.cpMax, range.cpMin);
     }
 }
@@ -330,6 +332,10 @@ void ScintillaNext::reload()
         return;
     }
 
+    const int line = firstVisibleLine();
+    const int caret = selectionNCaret(mainSelection());
+    const int anchor = selectionNAnchor(mainSelection());
+
     // Remove all the text
     {
         const QSignalBlocker blocker(this);
@@ -344,17 +350,21 @@ void ScintillaNext::reload()
     QFile f(fileInfo.canonicalFilePath());
     bool readSuccessful = readFromDisk(f);
 
-    if (readSuccessful) {
-        updateTimestamp();
-        setSavePoint();
-
-        // If this was a temporary file, make sure it is not any more
-        setTemporary(false);
-        
-        emit reloaded();
+    if (!readSuccessful) {
+        return;
     }
 
-    return;
+    updateTimestamp();
+    setSavePoint();
+
+    // If this was a temporary file, make sure it is not any more
+    if (isTemporary())
+        setTemporary(false);
+
+    scrollVertical(line, 0);
+    setSelection(caret, anchor);
+
+    emit reloaded();
 }
 
 void ScintillaNext::omitModifications()
@@ -496,6 +506,45 @@ void ScintillaNext::uncommentLineSelection()
 {
     ScintillaCommenter sc(this);
     sc.uncommentSelection();
+}
+
+void ScintillaNext::removeDuplicateLines()
+{
+    QByteArray data = QByteArray::fromRawData((char*) characterPointer(), textLength());
+    const QByteArray delim = eolString();
+
+    auto lines = ByteArrayUtils::split(data, delim);
+    int originalLineCount = lines.length();
+    ByteArrayUtils::removeDuplicates(lines);
+
+    if (originalLineCount == lines.length()){
+        return; // No lines were removed
+    }
+
+    QByteArray result = ByteArrayUtils::join(lines, delim);
+
+    const UndoAction ua(this);
+    setTargetRange(0, textLength());
+    replaceTarget(result.length(), result.constData());
+}
+
+void ScintillaNext::removeConsecutiveDuplicateLines()
+{
+    QByteArray data = QByteArray::fromRawData((char*) characterPointer(), textLength());
+    const QByteArray delim = eolString();
+
+    auto lines = ByteArrayUtils::split(data, delim);
+    int originalLineCount = lines.length();
+    ByteArrayUtils::removeConsecutiveDuplicates(lines);
+    QByteArray result = ByteArrayUtils::join(lines, delim);
+
+    if (originalLineCount == lines.length()){
+        return; // No lines were removed
+    }
+
+    const UndoAction ua(this);
+    setTargetRange(0, textLength());
+    replaceTarget(result.length(), result.constData());
 }
 
 void ScintillaNext::dragEnterEvent(QDragEnterEvent *event)
