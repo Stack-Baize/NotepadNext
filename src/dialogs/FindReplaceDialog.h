@@ -31,6 +31,7 @@
 
 class ScintillaNext;
 class MainWindow;
+class BookMarkDecorator;
 
 namespace Ui {
 class FindReplaceDialog;
@@ -44,8 +45,13 @@ public:
     enum {
         FIND_TAB = 0,
         REPLACE_TAB = 1,
-        FIND_IN_FILES_TAB = 2,
-        MARK_TAB = 3
+        MARK_TAB = 2
+    };
+
+    enum class SearchDirection
+    {
+        Forwards,
+        Backwards
     };
 
     explicit FindReplaceDialog(ISearchResultsHandler *searchResults, MainWindow *window = nullptr);
@@ -68,7 +74,8 @@ signals:
     void windowDeactivated();
 
 public slots:
-    void performLastSearch();
+    void performNextSearch();
+    void performPrevSearch();
 
     void find();
     void findAllInCurrentDocument();
@@ -76,6 +83,9 @@ public slots:
     void count();
     void replace();
     void replaceAll();
+    void markAll();
+    void clearAllMarks();
+    void copyMarkedText();
 
 private slots:
     void setEditor(ScintillaNext *edit);
@@ -88,6 +98,7 @@ private slots:
 
 private:
     QString findString();
+    void performFind(SearchDirection direction);
     void prepareToPerformSearch(bool replace=false);
     void loadSettings();
     void saveSettings();
@@ -98,6 +109,9 @@ private:
     int computeSearchFlags();
 
     void showMessage(const QString &message, const QString &color);
+    int ensureMarkIndicator();
+    BookMarkDecorator *bookMarkDecorator() const;
+    void clearAllBookmarks();
 
     void updateFindList(const QString &text);
     void updateReplaceList(const QString &text);

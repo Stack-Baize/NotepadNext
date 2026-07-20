@@ -1,6 +1,6 @@
 /*
  * This file is part of Notepad Next.
- * Copyright 2022 Justin Dailey
+ * Copyright 2026 Justin Dailey
  *
  * Notepad Next is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,32 +16,21 @@
  * along with Notepad Next.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
-#ifndef HEXVIEWERDOCK_H
-#define HEXVIEWERDOCK_H
+#include "ScintillaNext.h"
+#include "Sorter.h"
 
-#include <QDockWidget>
-
-namespace Ui {
-class HexViewerDock;
-}
-class MainWindow;
-class ScintillaNext;
-
-class HexViewerDock : public QDockWidget
+class ScintillaSorter
 {
-    Q_OBJECT
-
 public:
-    explicit HexViewerDock(MainWindow *parent);
-    ~HexViewerDock();
+    explicit ScintillaSorter(ScintillaNext *editor);
 
-private slots:
-    void connectToEditor(ScintillaNext *editor);
+    void sort(const Sorter &sorter);
 
 private:
+    ScintillaNext *editor;
 
-    Ui::HexViewerDock *ui;
+    const QByteArray readEditorText();
+    void writeEditorText(const QByteArray &result);
 };
-
-#endif // HEXVIEWERDOCK_H

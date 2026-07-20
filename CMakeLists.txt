@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(NotepadNext
-    VERSION 0.13
+    VERSION 0.14
     DESCRIPTION "Cross-platform text editor"
     LANGUAGES CXX
 )
@@ -13,6 +13,8 @@ set(APP_COPYRIGHT "Copyright 2019-${CURRENT_YEAR} Justin Dailey")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_compile_definitions(SCI_OWNREGEX)
 
 if(MSVC)
     # https://stackoverflow.com/questions/78598141/first-stdmutexlock-crashes-in-application-built-with-latest-visual-studio

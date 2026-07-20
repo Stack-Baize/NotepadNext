@@ -11,7 +11,7 @@ qt_add_executable(NotepadNext
 	DefaultDirectoryManager.h
 	DockedEditor.h
 	DockedEditorTitleBar.h
-	EditorHexViewerTableModel.h
+
 	EditorManager.h
 	EditorPrintPreviewRenderer.h
 	FileDialogHelpers.h
@@ -59,7 +59,7 @@ qt_add_executable(NotepadNext
 	DebugManager.cpp
 	DefaultDirectoryManager.cpp
 	DockedEditor.cpp
-	EditorHexViewerTableModel.cpp
+
 	EditorManager.cpp
 	EditorPrintPreviewRenderer.cpp
 	FileDialogHelpers.cpp
@@ -158,9 +158,9 @@ qt_add_executable(NotepadNext
 	docks/FolderAsWorkspaceDock.cpp
 	docks/FolderAsWorkspaceDock.h
 	docks/FolderAsWorkspaceDock.ui
-	docks/HexViewerDock.cpp
-	docks/HexViewerDock.h
-	docks/HexViewerDock.ui
+
+
+
 	docks/LanguageInspectorDock.cpp
 	docks/LanguageInspectorDock.h
 	docks/LanguageInspectorDock.ui
@@ -179,6 +179,10 @@ qt_add_executable(NotepadNext
 	widgets/QuickFindWidget.ui
 	widgets/StatusLabel.cpp
 	widgets/StatusLabel.h
+	Sorter.h Sorter.cpp
+	ScintillaSorter.h ScintillaSorter.cpp
+	widgets/TabsQuickActionsBar.cpp
+	widgets/TabsQuickActionsBar.h
 )
 
 set_target_properties(NotepadNext PROPERTIES
@@ -235,6 +239,12 @@ target_link_libraries(NotepadNext
         scintilla
         uchardet
 )
+
+if(APPLE)
+    # Workaround for Qt 6.5/6.8 on macOS with newer Xcode that removed deprecated AGL framework
+    # These linker flags prevent the linker from failing when Qt tries to reference AGL
+    target_link_options(NotepadNext PRIVATE "LINKER:-flat_namespace" "LINKER:-undefined,suppress")
+endif()
 
 target_compile_definitions(NotepadNext
     PRIVATE
